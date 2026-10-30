@@ -1,4 +1,5 @@
 import type { TaskItemProps, TaskStatus } from "../../types";
+import { formatDate, getToday } from "../../utils/taskUtils";
 
 // One task card. Shows the task and lets the user change its status,
 // move it up or down, edit it, or delete it.
@@ -27,10 +28,13 @@ export default function TaskItem({
 
   // Completed tasks get crossed out
   const doneStyle = task.status === "completed" ? "line-through opacity-60" : "";
+  const isOverdue = task.status !== "completed" && task.dueDate < getToday();
 
+  // starting:* sets where the card animates in from when it first appears
+  // (fades and slides up). motion-reduce turns this off for users who ask for less motion.
   return (
     <li
-      className={`flex flex-col gap-4 rounded-xl border p-4 shadow-sm transition-colors sm:flex-row sm:justify-between ${cardStyle}`}
+      className={`flex flex-col gap-4 rounded-xl border p-4 shadow-sm transition-all duration-300 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none sm:flex-row sm:justify-between ${cardStyle}`}
     >
       <section className="flex flex-col gap-2">
         <h3 className={`text-lg font-semibold ${titleStyle} ${doneStyle}`}>
@@ -39,7 +43,12 @@ export default function TaskItem({
         <p className={textStyle}>{task.description}</p>
         <div className="mt-1 flex gap-3 text-sm">
           <span className={priorityStyle}>Priority: {task.priority}</span>
-          <span className={textStyle}>Due: {task.dueDate}</span>
+          <span className={textStyle}>Due: {formatDate(task.dueDate)}</span>
+          {isOverdue && (
+            <span className={`font-medium ${isDark ? "text-red-400" : "text-red-700"}`}>
+              Overdue
+            </span>
+          )}
         </div>
       </section>
 
