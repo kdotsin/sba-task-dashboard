@@ -5,7 +5,7 @@ export type SortOption = 'none' | 'dueDate' | 'priority' | 'title';
 export type MoveDirection = 'up' | 'down';
 
 export interface Task {
-  id: string;
+  id: number;
   title: string;
   description: string;
   status: TaskStatus;
@@ -13,26 +13,36 @@ export interface Task {
   dueDate: string;
 }
 
-// Everything the user fills in on the TaskForm. The id is generated on submit.
-export type TaskFormData = Omit<Task, 'id'>;
+// What the user fills in on the TaskForm. The id is added when the task is created.
+export interface TaskFormData {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate: string;
+}
 
-// One optional error message per form field.
-export type TaskFormErrors = Partial<Record<keyof TaskFormData, string>>;
+// Error messages for the TaskForm. An empty string means that field is fine.
+export interface TaskFormErrors {
+  title: string;
+  description: string;
+  dueDate: string;
+}
 
-// An undefined status or priority means "show all".
+// 'all' means "don't filter by this".
 export interface FilterOptions {
-  status?: TaskStatus;
-  priority?: TaskPriority;
+  status: TaskStatus | 'all';
+  priority: TaskPriority | 'all';
   search: string;
 }
 
 export interface TaskItemProps {
   task: Task;
   theme: Theme;
-  onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onStatusChange: (taskId: number, newStatus: TaskStatus) => void;
   onEdit: (task: Task) => void;
-  onDelete: (taskId: string) => void;
-  onMove: (taskId: string, direction: MoveDirection) => void;
+  onDelete: (taskId: number) => void;
+  onMove: (taskId: number, direction: MoveDirection) => void;
 }
 
 export interface TaskListProps {
@@ -40,17 +50,16 @@ export interface TaskListProps {
   theme: Theme;
   sortBy: SortOption;
   onSortChange: (sortBy: SortOption) => void;
-  onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onStatusChange: (taskId: number, newStatus: TaskStatus) => void;
   onEdit: (task: Task) => void;
-  onDelete: (taskId: string) => void;
-  // Moves a task one spot up or down in the list (used when sortBy is 'none').
-  onMove: (taskId: string, direction: MoveDirection) => void;
+  onDelete: (taskId: number) => void;
+  onMove: (taskId: number, direction: MoveDirection) => void;
 }
 
 export interface TaskFilterProps {
   filters: FilterOptions;
   theme: Theme;
-  onFilterChange: (changes: Partial<FilterOptions>) => void;
+  onFilterChange: (filters: FilterOptions) => void;
 }
 
 export interface TaskFormProps {
@@ -58,5 +67,5 @@ export interface TaskFormProps {
   // When set, the form edits this task instead of creating a new one.
   initialTask?: Task;
   onSubmit: (data: TaskFormData) => void;
-  onCancel?: () => void;
+  onCancel: () => void;
 }
