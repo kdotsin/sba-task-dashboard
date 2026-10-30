@@ -1,4 +1,4 @@
-import type { TaskFormData, TaskFormErrors } from "../types";
+import type { FilterOptions, Task, TaskFormData, TaskFormErrors } from "../types";
 
 // Today's date as "YYYY-MM-DD" in the user's own timezone.
 // ("en-CA" happens to format dates as YYYY-MM-DD, the same as <input type="date">.)
@@ -38,4 +38,21 @@ export function validateTaskForm(data: TaskFormData, originalDueDate?: string): 
 // True when every error message is empty.
 export function isFormValid(errors: TaskFormErrors): boolean {
   return errors.title === "" && errors.description === "" && errors.dueDate === "";
+}
+
+// Returns only the tasks that match the filters.
+// Search looks at the title and description and ignores upper/lower case.
+export function filterTasks(tasks: Task[], filters: FilterOptions): Task[] {
+  const search = filters.search.trim().toLowerCase();
+
+  return tasks.filter((task) => {
+    const matchesStatus = filters.status === "all" || task.status === filters.status;
+    const matchesPriority = filters.priority === "all" || task.priority === filters.priority;
+    const matchesSearch =
+      search === "" ||
+      task.title.toLowerCase().includes(search) ||
+      task.description.toLowerCase().includes(search);
+
+    return matchesStatus && matchesPriority && matchesSearch;
+  });
 }
